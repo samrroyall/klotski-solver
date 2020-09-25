@@ -570,7 +570,7 @@ class Content extends React.Component {
       } else {
         clearInterval(repeater);
       }
-    }, 500);
+    }, 250);
   }
 
 
