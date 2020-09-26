@@ -73,6 +73,8 @@ class Board {
         [null, null, null, null],
         [null, null, null, null],
     ];
+    readonly winningCol: number; 
+    readonly winningRow: number; 
     readonly blocks: Array<Block>;
     readonly moves: Array<Move>;
     readonly hash: string;
@@ -85,7 +87,7 @@ class Board {
         let fourBlock: boolean = false;
         for (let block of this.blocks) {
             if (block.numRows*block.numCols === 4 && !fourBlock) fourBlock = true; 
-            else if (block.numRows*block.numCols === 4) throw new Error("Only one block of size 4 may be placed.");
+            else if (block.numRows*block.numCols === 4) throw new Error("There must be exacly one block of size 4");
             for (let i: number = block.rowPos; i < block.rowPos + block.numRows; i++) {
                 for (let j: number = block.colPos; j < block.colPos + block.numCols; j++) {
                     if (this._cells[i][j] === null) {
@@ -96,17 +98,19 @@ class Board {
                 }
             }
         }
-        if (!fourBlock) throw new Error("One block of size 4 must be placed.");
+        if (!fourBlock) throw new Error("There must be exactly one block of size 4");
     }
     private setHash(): string {
         // walk through `_cells` matrix, convert blocks to simple strings, and
         // concatenate them into the `hash` string
         let res: string = "";
+        let numNulls: number = 0;
         for (let i: number = 0; i < 5; i++) {
             for (let j: number  = 0; j < 4; j++) {
                 let block: Block | null = this._cells[i][j];
                 if (block === null) {
                     res += "0";
+                    numNulls++;
                 } else if ( block.numRows*block.numCols === 2) {
                     res += (block.numRows === 1 ? "2H" : "2V");
                 } else {
@@ -114,6 +118,7 @@ class Board {
                 } 
             }
         }
+        if (numNulls !== 2) throw new Error("There must be exactly 2 free spaces on the board");
         return res;
     }
     private currentDirs(block: Block): Array<Dir> {
@@ -193,12 +198,16 @@ class Board {
                 res.push(top); // push dirs to result
                 this.makeMove(block, top); // move block
                 // return valid directions from current position
-                for (let nextDir of this.currentDirs(block)) {
-                    // ensure next direction is not a move backward
-                    if (nextDir !== oppositeDir(top[top.length-1])) {
-                        let newDirs: Array<Dir> = [...top];
-                        newDirs.push(nextDir);
-                        stack.push(newDirs); // push new dirs list
+                // since a board will have two free spaces, move paths
+                // can be maximum length 2
+                if (top.length < 2) {
+                    for (let nextDir of this.currentDirs(block)) {
+                        // ensure next direction is not a move backward
+                        if (nextDir !== oppositeDir(top[top.length-1])) {
+                            let newDirs: Array<Dir> = [...top];
+                            newDirs.push(nextDir);
+                            stack.push(newDirs); // push new dirs list
+                        }
                     }
                 }
                 this.makeMove(block, oppositeDirs(top)); // unMove block
@@ -224,11 +233,11 @@ class Board {
         return res;
     }
     private isSolved(): boolean {
-        let winningBlock: Block | null = this._cells[3][1];
+        let winningBlock: Block | null = this._cells[this.winningRow][this.winningCol];
         if (winningBlock !== null) {
             return (
-                winningBlock.rowPos === 3 && 
-                winningBlock.colPos === 1 &&
+                winningBlock.rowPos === this.winningRow && 
+                winningBlock.colPos === this.winningCol &&
                 winningBlock.numRows * winningBlock.numCols === 4
             );
         }
@@ -236,13 +245,14 @@ class Board {
     }
 
     // CONSTRUCTOR 
-    constructor(blocks_: Array<Block>) {
-        if (blocks_.length < 10) throw new Error("At least 10 blocks must be placed!");
+    constructor(blocks_: Array<Block>, winningRow_: number, winningCol_: number) {
+        this.winningRow = winningRow_;
+        this.winningCol = winningCol_;
         this.blocks = blocks_;
         this.insertBlocks();
         this.hash = this.setHash();
-        this.moves = this.setMoves();
         this.solved = this.isSolved();
+        this.moves = this.setMoves();
     }
 }
 
@@ -250,13 +260,14 @@ class Board {
 function cloneBoard(board: Board, move: Move): Board {
     // function to generate a new board following a move
     let blocks: Array<Block> = new Array<Block>();
-    for (let block of board.blocks) blocks.push(cloneBlock(block));
-    for (let block of blocks) {
-        if (equivalentBlocks(block, move.block)) {
-            moveBlock(block, move.dirs);
+    for (let block of board.blocks) {
+        let newBlock: Block = cloneBlock(block);
+        if (equivalentBlocks(newBlock, move.block)) {
+            moveBlock(newBlock, move.dirs);
         }
+        blocks.push(newBlock);
     }
-    let newBoard: Board = new Board(blocks);
+    let newBoard: Board = new Board(blocks, board.winningRow, board.winningCol);
     return newBoard;
 }
 
@@ -332,8 +343,8 @@ class Solver {
         }
     }
     // CONSTRUCTOR
-    constructor(blocks: Array<Block>) {
-        this.head = new TreeNode(new Board(blocks), null);
+    constructor(blocks: Array<Block>, winningRow: number, winningCol: number) {
+        this.head = new TreeNode(new Board(blocks, winningRow, winningCol), null);
     }
 }
 

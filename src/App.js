@@ -1,5 +1,6 @@
 import React from 'react';
-import Solver from './solver';
+import Solver from './solver.ts';
+import './style.css';
 
 function BoardBlock(props) {
   if (props.size === 4) {
@@ -23,53 +24,92 @@ function BoardBlock(props) {
   }
 }
 
-function BoardCell(props) {
-  if (props.block == null) {
-    // nothing
-    return (
-      <span></span>
-    );
-  } else {
-    if (props.block.hasOwnProperty("colPos") && props.block.hasOwnProperty("rowPos")) {
-      const size = (
-        props.block.hasOwnProperty("numCols") ? 
-        props.block.numRows*props.block.numCols : 
-        props.block.numRows*props.block.numRows
-      );
-      if (size === 0) {
-        // empty space
-        const currRow = parseInt(props.id.split(",")[0]);
-        const currCol = parseInt(props.id.split(",")[1]);
-        if ((currRow === 3 || currRow === 4) && (currCol === 1 || currCol === 2)) {
-          return (
-            <div className="col-3 boardcell winningcell m-0 border"
-              id={props.id}
-              onMouseUp={props.onDropFunc}>
-            </div>
-          );
-        } else {
-          return (
-            <div className="col-3 boardcell m-0 border"
-              id={props.id}
-              onMouseUp={props.onDropFunc}>
-            </div>
-          );
-        }
+class BoardCell extends React.Component {
+  constructor (props) {
+    super(props);
+    this.state = {
+        currRow: parseInt(props.id.split(",")[0]),
+        currCol: parseInt(props.id.split(",")[1])
+    }
+    this.click = this.click.bind(this);
+  }
 
+  click(e) {
+    this.props.onClickFunc(e.currentTarget.id);
+  }
+  
+  render() {
+    // currently under placed block
+    if (this.props.block == null) {
+      return (
+        <span></span>
+      );
+    // under overflow of placed block
+    } else if (
+      !this.props.block.hasOwnProperty("colPos") && 
+      !this.props.block.hasOwnProperty("rowPos")
+    ) {
+      return (
+        <div className="col-3 p-0 m-0"></div>
+      );
+    } else {
+      const size = (
+        this.props.block.hasOwnProperty("numCols") ? 
+        this.props.block.numRows*this.props.block.numCols : 
+        this.props.block.numRows*this.props.block.numRows
+      );
+      // empty space
+      if (size === 0) {
+        // winning cell
+        if (
+          (this.state.currRow === this.props.winningRow || this.state.currRow === this.props.winningRow+1) && 
+          (this.state.currCol === this.props.winningCol || this.state.currCol === this.props.winningCol+1)
+        ) {
+          if (this.state.currRow === 4 || this.state.currCol === 3) {
+            return (
+              <div className="col-3 boardcell winningcell p-0 m-0 border"
+                id={this.props.id}
+                onMouseUp={this.props.onDropFunc}>
+              </div>
+            );
+          } else {
+            return (
+              <div className="col-3 boardcell winningcell p-0 m-0 border"
+                id={this.props.id}
+                onMouseUp={this.props.onDropFunc}
+                onMouseDown={this.click}>
+              </div>
+            );
+          }
+        // normal cell
+        } else {
+          if (this.state.currRow === 4 || this.state.currCol === 3) {
+            return (
+              <div className="col-3 boardcell p-0 m-0 border"
+                id={this.props.id}
+                onMouseUp={this.props.onDropFunc}>
+              </div>
+            );
+          } else {
+            return (
+              <div className="col-3 boardcell p-0 m-0 border"
+                id={this.props.id}
+                onMouseUp={this.props.onDropFunc}
+                onMouseDown={this.click}>
+              </div>
+            );
+          }
+        }
+      // block placed
       } else {
         return (
           <BoardBlock
-            key={props.id}
+            key={this.props.id}
             size={size}
-            block={props.block}
+            block={this.props.block}
           />
         );
       }
-    } else {
-      // placeholder for next row overflow from block
-      return (
-        <div className="col-3 m-0"></div>
-      );
     }
   }
 }
@@ -81,6 +121,9 @@ function BoardRow(props) {
       id={cell.id}
       block={cell.val}
       onDropFunc={props.onDropFunc}
+      onClickFunc={props.onClickFunc}
+      winningRow={props.winningRow}
+      winningCol={props.winningCol}
     />
   );
   return (
@@ -96,7 +139,7 @@ class Board extends React.Component {
     super(props);
     this.state = {
       blocks: this.props.blocks,
-      blocksAdded: false
+      blocksAdded: false,
     };
 
     this.onDrop = this.onDrop.bind(this);
@@ -109,20 +152,36 @@ class Board extends React.Component {
   // property.
   onDrop(e) {
     if (this.props.dragBlock) {
-      // instantiate new blocks list
-      var newBlocks = this.state.blocks;
-      newBlocks.push({ 
+      // instantiate new block
+      let newBlock = { 
         rowPos: parseInt(e.currentTarget.id.split(",")[0]), 
         colPos: parseInt(e.currentTarget.id.split(",")[1]), 
         numRows: this.props.dragBlock.numRows,
         numCols: this.props.dragBlock.numCols
-      });
-      // push new block
-      this.setState(state => ({
-        blocksAdded: true,
-        blocks: newBlocks
-      }));
-      this.props.onAddBlock(this.state.blocks);
+      };
+      let lastRow = newBlock.rowPos + newBlock.numRows - 1; // newBlock's max row
+      let lastCol = newBlock.colPos + newBlock.numCols - 1; // newBlock's max column
+      // ensure four block is not in the winning position
+      if (
+        newBlock.numRows*newBlock.numCols === 4 && 
+        newBlock.rowPos === this.props.winningRow && 
+        newBlock.colPos === this.props.winningCol
+      ) {
+        alert("The block of size 4 cannot be placed in the winning position");
+      // ensure block does not fall off board
+      } else if(lastRow > 4 || lastCol > 3) {
+        alert("Invalid block placement");
+      // ensure block of size 4 is not on the winning row
+      } else {
+        let newBlocks = this.state.blocks;
+        newBlocks.push(newBlock);
+        // push new block
+        this.setState(state => ({
+          blocksAdded: true,
+          blocks: newBlocks
+        }));
+        this.props.onAddBlock(this.state.blocks);
+      }
     }
   }
 
@@ -163,8 +222,10 @@ class Board extends React.Component {
     // insert blocks
     for (var b = 0; b < blocks.length; b++) {
       var block = blocks[b];
-      for (var r = block.rowPos; r < block.rowPos + block.numRows; r++) {
-        for (var c = block.colPos; c < block.colPos + block.numCols; c++) {
+      let lastRow = block.rowPos + block.numRows - 1;
+      let lastCol = block.colPos + block.numCols - 1;      
+      for (var r = block.rowPos; r <= lastRow; r++) {
+        for (var c = block.colPos; c <= lastCol; c++) {
           if (r === block.rowPos && c === block.colPos) {
             ((board[r].row)[c]).val = block;
           } else if (r === block.rowPos){
@@ -185,6 +246,9 @@ class Board extends React.Component {
         key={row.id}
         cells={row.row}
         onDropFunc={this.onDrop}
+        onClickFunc={this.props.onClickFunc}
+        winningRow={this.props.winningRow}
+        winningCol={this.props.winningCol}
       />
     )
     return ( 
@@ -453,7 +517,9 @@ class Content extends React.Component {
       default: false,
       solved: false,
       finished: false,
-      dragBlock: null
+      dragBlock: null,
+      winningRow: 3,
+      winningCol: 1
     };
 
     this.blocksAdded = this.blocksAdded.bind(this);
@@ -463,9 +529,11 @@ class Content extends React.Component {
     this.solve = this.solve.bind(this);
     this.next = this.next.bind(this);
     this.prev = this.prev.bind(this);
+    this.restart = this.restart.bind(this);
     this.finish = this.finish.bind(this);
     this.dragBlockInfo = this.dragBlockInfo.bind(this);
     this.clearDragBlock = this.clearDragBlock.bind(this);
+    this.setWinningPos = this.setWinningPos.bind(this);
   }
 
   // Function passed to the Board component that updates the Content
@@ -486,7 +554,13 @@ class Content extends React.Component {
       blocks: [],
       blocksAdded: false,
       cleared: true,
-      default: false
+      default: false,
+      displayText: "Klotski Solver",
+      solved: false,
+      finished: false,
+      dragBlock: null,
+      winningRow: 3,
+      winningCol: 1
     }));
   }
 
@@ -497,24 +571,42 @@ class Content extends React.Component {
     this.clear();
   }
 
+  restart() {
+    let clearFunc = this.clear;
+    setTimeout(
+      function () {clearFunc()},
+      3000
+    );
+  }
+
   // Function passed to the Buttons component that updates the Content
   // solved state property when a user clicks the solve button.
   solve() {
     try {
-      var s = new Solver(this.state.blocks);
+      var s = new Solver(
+        this.state.blocks, 
+        this.state.winningRow, 
+        this.state.winningCol
+      );
       s.solve();
       let solutionMoves = s.getBoards();
       const numMoves = solutionMoves.length;
-      let numMovesText = (numMoves > 0 ? "Solution of Length " + numMoves.toString() + " Found!" : "No Solution Found :(");
-      this.setState(state => ({
-        blocksAdded: false,
-        cleared: false,
-        default: false,
-        displayText: numMovesText,
-        boards: solutionMoves,
-        boardIdx: -1,
-        solved: true
-      }));
+      if (numMoves === 0) {
+        this.setState(state => ({
+          displayText: "No Solution Found :("
+        }));
+        this.restart();
+      } else {
+        this.setState(state => ({
+          blocksAdded: false,
+          cleared: false,
+          default: false,
+          displayText: "Solution of Length " + numMoves.toString() + " Found!",
+          boards: solutionMoves,
+          boardIdx: -1,
+          solved: true
+        }));
+      }
     } catch (err) {
       alert(err);
     }
@@ -523,32 +615,39 @@ class Content extends React.Component {
   // Function passed to the Buttons component that updates the Content
   // boards and blocks state properties when a user clicks the next button.
   next() {
-    if (this.state.boardIdx === this.state.boards.length-1) {
-      this.setState(state => ({
-        displayText: "You Win!"
-      }));
-      return true;
+    if (this.state.boards.length === 0) {
+      return;
     } else {
-      this.setState(state => ({
-        blocks: this.state.boards[this.state.boardIdx + 1],
-        boardIdx: this.state.boardIdx + 1,
-        displayText: "Move " + (this.state.boardIdx+2).toString()
-      }));
-      return false;
+      if (this.state.boardIdx === this.state.boards.length-1) {
+        this.setState(state => ({
+          displayText: "You Win!"
+        }));
+        this.restart();    
+      } else {
+        this.setState(state => ({
+          blocks: this.state.boards[this.state.boardIdx + 1],
+          boardIdx: this.state.boardIdx + 1,
+          displayText: "Move " + (this.state.boardIdx+2).toString()
+        }));
+      }
     }
   }
 
   // Function passed to the Buttons component that updates the Content
   // boards and blocks state properties when a user clicks the prev button.
   prev() {
-    if (this.state.boardIdx === -1) {
+     if (this.state.boards.length === 0) {
       return;
     } else {
-      this.setState(state => ({
-        blocks: this.state.boards[this.state.boardIdx - 1],
-        boardIdx: this.state.boardIdx - 1,
-        displayText: (this.state.boardIdx <= 0 ? "Klotski Solver" : "Move " + this.state.boardIdx.toString())
-      }));
+      if (this.state.boardIdx === -1) {
+        return;
+      } else {
+        this.setState(state => ({
+          blocks: this.state.boards[this.state.boardIdx - 1],
+          boardIdx: this.state.boardIdx - 1,
+          displayText: (this.state.boardIdx <= 0 ? "Klotski Solver" : "Move " + this.state.boardIdx.toString())
+        }));
+      }
     }
   }
 
@@ -561,7 +660,7 @@ class Content extends React.Component {
     }));
     let i = this.state.boardIdx;
     let n = this.state.boards.length;
-    var callFunction = this.next;
+    let callFunction = this.next;
     // repeat calls to next with a .5 second interval
     var repeater = setInterval(function () {
       if (i < n) {
@@ -593,7 +692,9 @@ class Content extends React.Component {
       blocks: initialBlocks,
       blocksAdded: false,
       cleared: false,
-      default: true
+      default: true,
+      winningRow: 3,
+      winningCol: 1
     }));
   }
 
@@ -610,6 +711,15 @@ class Content extends React.Component {
       }
     }));
   } 
+
+  setWinningPos(id) {
+    if (this.state.cleared) {
+      this.setState(state => ({
+        winningRow: parseInt(id.split(",")[0]),
+        winningCol: parseInt(id.split(",")[1])
+      }));
+    }
+  }
 
   // Function passed to the Board component on mouse down, which is used to nullify
   // the Content dragBlock state property.
@@ -632,6 +742,9 @@ class Content extends React.Component {
               blocks={this.state.blocks}
               dragBlock={this.state.dragBlock}
               onAddBlock={this.blocksAdded}
+              onClickFunc={this.setWinningPos}
+              winningRow={this.state.winningRow}
+              winningCol={this.state.winningCol}
             />
             <Buttons 
               blocksAdded={this.state.blocksAdded}
