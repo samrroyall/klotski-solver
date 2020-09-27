@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/klotski-solver/static/css/main.8601bc4d.chunk.css",
-    "main.js": "/klotski-solver/static/js/main.a1fa5440.chunk.js",
-    "main.js.map": "/klotski-solver/static/js/main.a1fa5440.chunk.js.map",
+    "main.js": "/klotski-solver/static/js/main.61d6d984.chunk.js",
+    "main.js.map": "/klotski-solver/static/js/main.61d6d984.chunk.js.map",
     "runtime-main.js": "/klotski-solver/static/js/runtime-main.3ffb2b0d.js",
     "runtime-main.js.map": "/klotski-solver/static/js/runtime-main.3ffb2b0d.js.map",
     "static/js/2.35c7fb24.chunk.js": "/klotski-solver/static/js/2.35c7fb24.chunk.js",
     "static/js/2.35c7fb24.chunk.js.map": "/klotski-solver/static/js/2.35c7fb24.chunk.js.map",
     "index.html": "/klotski-solver/index.html",
-    "precache-manifest.7dd7485961774b91f76250103075891a.js": "/klotski-solver/precache-manifest.7dd7485961774b91f76250103075891a.js",
+    "precache-manifest.d9a0e1661c448c741bc7920af1752a6a.js": "/klotski-solver/precache-manifest.d9a0e1661c448c741bc7920af1752a6a.js",
     "service-worker.js": "/klotski-solver/service-worker.js",
     "static/css/main.8601bc4d.chunk.css.map": "/klotski-solver/static/css/main.8601bc4d.chunk.css.map",
     "static/js/2.35c7fb24.chunk.js.LICENSE.txt": "/klotski-solver/static/js/2.35c7fb24.chunk.js.LICENSE.txt"
@@ -17,6 +17,6 @@
     "static/js/runtime-main.3ffb2b0d.js",
     "static/js/2.35c7fb24.chunk.js",
     "static/css/main.8601bc4d.chunk.css",
-    "static/js/main.a1fa5440.chunk.js"
+    "static/js/main.61d6d984.chunk.js"
   ]
 }
