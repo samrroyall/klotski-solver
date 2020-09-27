@@ -4,14 +4,14 @@
 #footer {
     position: fixed;
     left: 0;
-    bottom: 10px;
+    bottom: 7px;
     width: 100%;
 }
 .board {
     min-width: 350px !important;
 }
 .boardrow {
-    height: 7vw;
+    height: 5vw;
     min-height: 80px !important;
 }
 .boardcell {
@@ -31,13 +31,13 @@
     cursor: pointer;
 }
 .oneblock {
-    height: 7vw;
+    height: 5vw;
     min-height: 80px;
 }
 .draggable-oneblock {
-    height: 5vw;
+    height: 3vw;
     min-height: 50px;
-    width: 5vw;
+    width: 3vw;
     min-width: 50px;
     z-index: 1;
 }
@@ -45,13 +45,13 @@
     background-color: #408f40 !important;
 }
 .twoblockH {
-    height: 7vw;
+    height: 5vw;
     min-height: 80px;
 }
 .draggable-twoblockH {
-    height: 5vw;
+    height: 3vw;
     min-height: 50px;
-    width: 10vw;
+    width: 6vw;
     min-width: 100px;
     z-index: 1;
 }
@@ -59,13 +59,13 @@
     background-color: #f0ad4e !important;
 }
 .twoblockV {
-    height: 14vw;
+    height: 10vw;
     min-height: 160px;
 }
 .draggable-twoblockV {
-    height: 10vw;
+    height: 6vw;
     min-height: 100px;
-    width: 5vw;
+    width: 3vw;
     min-width: 50px;
     z-index: 1;
 }
@@ -73,13 +73,13 @@
     background-color: #0275d8 !important;
 }
 .fourblock {
-    height: 14vw;
+    height: 10vw;
     min-height: 160px;
 }
 .draggable-fourblock {
-    height: 10vw;
+    height: 6vw;
     min-height: 100px;
-    width: 10vw;
+    width: 6vw;
     min-width: 100px;
     z-index: 1;
 }
