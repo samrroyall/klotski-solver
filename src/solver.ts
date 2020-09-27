@@ -73,12 +73,9 @@ class Board {
         [null, null, null, null],
         [null, null, null, null],
     ];
+    readonly blocks: Array<Block>;
     readonly winningCol: number; 
     readonly winningRow: number; 
-    readonly blocks: Array<Block>;
-    readonly moves: Array<Move>;
-    readonly hash: string;
-    readonly solved: boolean;
 
     // METHODS
     private insertBlocks(): void {
@@ -99,27 +96,6 @@ class Board {
             }
         }
         if (!fourBlock) throw new Error("There must be exactly one block of size 4");
-    }
-    private setHash(): string {
-        // walk through `_cells` matrix, convert blocks to simple strings, and
-        // concatenate them into the `hash` string
-        let res: string = "";
-        let numNulls: number = 0;
-        for (let i: number = 0; i < 5; i++) {
-            for (let j: number  = 0; j < 4; j++) {
-                let block: Block | null = this._cells[i][j];
-                if (block === null) {
-                    res += "0";
-                    numNulls++;
-                } else if ( block.numRows*block.numCols === 2) {
-                    res += (block.numRows === 1 ? "2H" : "2V");
-                } else {
-                    res += (block.numRows*block.numCols).toString();
-                } 
-            }
-        }
-        if (numNulls !== 2) throw new Error("There must be exactly 2 free spaces on the board");
-        return res;
     }
     private currentDirs(block: Block): Array<Dir> {
         // for a given block return a list of directions corresponding 
@@ -215,7 +191,7 @@ class Board {
         }
         return res;
     }
-    private setMoves(): Array<Move> {
+    getMoves(): Array<Move> {
         // for each block, find all valid move paths and push
         // the corresponding Move objects to the `moves` array
         let res: Array<Move> = new Array<Move>();
@@ -232,13 +208,34 @@ class Board {
         }
         return res;
     }
-    private isSolved(): boolean {
+    getHash(): string {
+        // walk through `_cells` matrix, convert blocks to simple strings, and
+        // concatenate them into the `hash` string
+        let res: string = "";
+        let numNulls: number = 0;
+        for (let i: number = 0; i < 5; i++) {
+            for (let j: number  = 0; j < 4; j++) {
+                let block: Block | null = this._cells[i][j];
+                if (block === null) {
+                    res += "0";
+                    numNulls++;
+                } else if ( block.numRows*block.numCols === 2) {
+                    res += (block.numRows === 1 ? "2H" : "2V");
+                } else {
+                    res += (block.numRows*block.numCols).toString();
+                } 
+            }
+        }
+        if (numNulls !== 2) throw new Error("There must be exactly 2 free spaces on the board");
+        return res;
+    }
+    isSolved(): boolean {
         let winningBlock: Block | null = this._cells[this.winningRow][this.winningCol];
         if (winningBlock !== null) {
             return (
                 winningBlock.rowPos === this.winningRow && 
                 winningBlock.colPos === this.winningCol &&
-                winningBlock.numRows * winningBlock.numCols === 4
+                winningBlock.numRows*winningBlock.numCols === 4
             );
         }
         return false;
@@ -250,9 +247,6 @@ class Board {
         this.winningCol = winningCol_;
         this.blocks = blocks_;
         this.insertBlocks();
-        this.hash = this.setHash();
-        this.solved = this.isSolved();
-        this.moves = this.setMoves();
     }
 }
 
@@ -281,9 +275,11 @@ class TreeNode {
     // METHODS
     getChildren(hashes: Set<string>): Array<TreeNode> {
         let children: Array<TreeNode> = new Array<TreeNode>();
-        for (let move of this.board.moves) {
+        for (let move of this.board.getMoves()) {
             let childBoard: Board = cloneBoard(this.board, move);
-            if (!hashes.has(childBoard.hash)) {
+            let childHash: string = childBoard.getHash();
+            if (!hashes.has(childHash)) {
+                hashes.add(childHash);
                 let child: TreeNode = new TreeNode(childBoard, this);
                 children.push(child);
             }
@@ -311,20 +307,16 @@ class Solver {
         let hashes: Set<string> = new Set<string>();
         let queue: Array<TreeNode> = new Array<TreeNode>();
         queue.push(this.head); // add the head node to queue
-        hashes.add(this.head.board.hash); // add the head node board hash to set
+        hashes.add(this.head.board.getHash()); // add the head node board hash to set
         // BFS board configurations until a winning board is found
         while (queue.length > 0) {
             let top: TreeNode | undefined = queue.shift();
             if (top !== undefined) {
-                if (top.board.solved) {
+                if (top.board.isSolved()) {
                     this.tail = top;
-                    console.log("Solution found of length: " + top.headDist);
                     return;
                 }
-                for (let child of top.getChildren(hashes)) {
-                    hashes.add(child.board.hash); // add new hash to hashes set
-                    queue.push(child);
-                }
+                for (let child of top.getChildren(hashes)) queue.push(child);
             }
         }
         return;

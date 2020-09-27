@@ -3,34 +3,20 @@ import Solver from './solver.ts';
 import './style.css';
 
 function BoardBlock(props) {
-  if (props.size === 4) {
-    return (
-      <div className="col-6 fourblock m-0 bg-danger border border-dark rounded"></div>
-    );
-  } else if (props.size === 2) {
-    if (props.block.numCols === 1) {
-        return (
-          <div className="col-3 twoblockV m-0 bg-primary border border-dark rounded"></div>
-        );
-    } else if (props.block.numCols === 2) {
-        return (
-          <div className="col-6 twoblockH m-0 bg-warning border border-dark rounded"></div>
-        );
-    }
-  } else if (props.size === 1) {
-    return (
-      <div className="col-3 oneblock m-0 bg-success border border-dark rounded"></div>
-    );
-  }
+  const fourblock = <div className="col-6 fourblock m-0 bg-danger border border-dark rounded"></div>;
+  const twoblockV = <div className="col-3 twoblockV m-0 bg-primary border border-dark rounded"></div>;
+  const twoblockH = <div className="col-6 twoblockH m-0 bg-warning border border-dark rounded"></div>;
+  const oneblock = <div className="col-3 oneblock m-0 bg-success border border-dark rounded"></div>;
+  if (props.size === 4) return fourblock;
+  else if (props.size === 2 && props.block.numCols === 1) return twoblockV;
+  else if (props.size === 2) return twoblockH;
+  else if (props.size === 1) return oneblock;
+  else alert("Invalid board cell properties");
 }
 
 class BoardCell extends React.Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
-    this.state = {
-        currRow: parseInt(props.id.split(",")[0]),
-        currCol: parseInt(props.id.split(",")[1])
-    }
     this.click = this.click.bind(this);
   }
 
@@ -40,76 +26,65 @@ class BoardCell extends React.Component {
   
   render() {
     // currently under placed block
-    if (this.props.block == null) {
-      return (
-        <span></span>
+    if (this.props.block == null) return <span></span>;
+
+    // return placeholder block in next row under block overflow
+    const underblock = <div className="col-3 p-0 m-0"></div>;
+    if (!this.props.block.hasOwnProperty("colPos")) return underblock;
+
+    const currRow = parseInt(this.props.id.split(",")[0]);
+    const currCol = parseInt(this.props.id.split(",")[1]);
+    const size = this.props.block.numRows*this.props.block.numCols;
+    // empty space
+    if (size === 0) {
+      // winning cell vars
+      let winRow = this.props.winningRow;
+      let winCol = this.props.winningCol;
+      const winCell = (
+        <div className="col-3 boardcell winningcell p-0 m-0 border"
+          id={this.props.id}
+          onMouseUp={this.props.onDropFunc}>
+        </div>
       );
-    // under overflow of placed block
-    } else if (
-      !this.props.block.hasOwnProperty("colPos") && 
-      !this.props.block.hasOwnProperty("rowPos")
-    ) {
-      return (
-        <div className="col-3 p-0 m-0"></div>
+      const clickableWinCell = (
+        <div className="col-3 boardcell winningcell p-0 m-0 border"
+          id={this.props.id}
+          onMouseUp={this.props.onDropFunc}
+          onMouseDown={this.click}>
+        </div>
       );
-    } else {
-      const size = (
-        this.props.block.hasOwnProperty("numCols") ? 
-        this.props.block.numRows*this.props.block.numCols : 
-        this.props.block.numRows*this.props.block.numRows
+      // normal cell vars
+      const cell = (
+        <div className="col-3 boardcell p-0 m-0 border"
+          id={this.props.id}
+          onMouseUp={this.props.onDropFunc}>
+        </div>
       );
-      // empty space
-      if (size === 0) {
-        // winning cell
-        if (
-          (this.state.currRow === this.props.winningRow || this.state.currRow === this.props.winningRow+1) && 
-          (this.state.currCol === this.props.winningCol || this.state.currCol === this.props.winningCol+1)
-        ) {
-          if (this.state.currRow === 4 || this.state.currCol === 3) {
-            return (
-              <div className="col-3 boardcell winningcell p-0 m-0 border"
-                id={this.props.id}
-                onMouseUp={this.props.onDropFunc}>
-              </div>
-            );
-          } else {
-            return (
-              <div className="col-3 boardcell winningcell p-0 m-0 border"
-                id={this.props.id}
-                onMouseUp={this.props.onDropFunc}
-                onMouseDown={this.click}>
-              </div>
-            );
-          }
-        // normal cell
-        } else {
-          if (this.state.currRow === 4 || this.state.currCol === 3) {
-            return (
-              <div className="col-3 boardcell p-0 m-0 border"
-                id={this.props.id}
-                onMouseUp={this.props.onDropFunc}>
-              </div>
-            );
-          } else {
-            return (
-              <div className="col-3 boardcell p-0 m-0 border"
-                id={this.props.id}
-                onMouseUp={this.props.onDropFunc}
-                onMouseDown={this.click}>
-              </div>
-            );
-          }
-        }
-      // block placed
+      const clickableCell = (
+        <div className="col-3 boardcell p-0 m-0 border"
+          id={this.props.id}
+          onMouseUp={this.props.onDropFunc}
+          onMouseDown={this.click}>
+        </div>
+      );
+      // winning cell
+      if ((currRow === winRow || currRow === winRow+1) && (currCol === winCol || currCol === winCol+1)) {
+        if (currRow === 4 || currCol === 3) return winCell;
+        else return clickableWinCell;
+      // normal cell
       } else {
-        return (
-          <BoardBlock
-            key={this.props.id}
-            size={size}
-            block={this.props.block}
-          />
-        );
+        if (currRow === 4 || currCol === 3) return cell;
+        else return clickableCell;
       }
+    // block placed
+    } else {
+      return (
+        <BoardBlock
+          key={this.props.id}
+          size={size}
+          block={this.props.block}
+        />
+      );
     }
   }
 }
@@ -120,8 +95,8 @@ function BoardRow(props) {
       key={cell.id}
       id={cell.id}
       block={cell.val}
-      onDropFunc={props.onDropFunc}
       onClickFunc={props.onClickFunc}
+      onDropFunc={props.onDropFunc}
       winningRow={props.winningRow}
       winningCol={props.winningCol}
     />
@@ -245,8 +220,8 @@ class Board extends React.Component {
       <BoardRow
         key={row.id}
         cells={row.row}
-        onDropFunc={this.onDrop}
         onClickFunc={this.props.onClickFunc}
+        onDropFunc={this.onDrop}
         winningRow={this.props.winningRow}
         winningCol={this.props.winningCol}
       />
@@ -264,10 +239,7 @@ class DraggableBlock extends React.Component {
     super(props);
     this.state = {
       rel: null,
-      pos: {
-        left: 0,
-        top: 0
-      }
+      pos: { left: 0, top: 0}
     };
     this.drag = this.drag.bind(this);
     this.move = this.move.bind(this);
@@ -277,7 +249,7 @@ class DraggableBlock extends React.Component {
   // function called on mouse down on a draggable block
   drag(e) {
     if (e.button !== 0) return
-    var currPos = e.currentTarget.getBoundingClientRect();
+    let currPos = e.currentTarget.getBoundingClientRect();
     this.setState((state) => ({
       rel: {
         left: currPos.left,
@@ -293,8 +265,8 @@ class DraggableBlock extends React.Component {
   
   // function called on mouse move after mouse down on a draggable block
   move(e) {
-    var x = e.pageX;
-    var y = e.pageY;
+    let x = e.pageX;
+    let y = e.pageY;
     this.setState((state) => ({
       pos: {
         left: x - this.state.rel.left,
@@ -305,15 +277,11 @@ class DraggableBlock extends React.Component {
     e.preventDefault();
   }
 
-
   // function called on mouse up after mouse down on a draggable block
   drop(e) {
     this.setState((state) => ({
       rel: null,
-      pos: {
-        left: 0,
-        top: 0
-      }
+      pos: {left: 0, top: 0}
     }));
     document.removeEventListener("mousemove", this.move);
     document.removeEventListener("mouseup", this.drop);
@@ -322,57 +290,31 @@ class DraggableBlock extends React.Component {
   }
 
   render() {
-    if (this.props.size === 4) {
-      return (
-        <div className="draggable-fourblock m-0 bg-danger border border-dark rounded draggable"
-          id={this.props.id}
-          style={{
-            position: "relative",
-            left: this.state.pos.left + "px",
-            top: this.state.pos.top + "px"
-          }}
-          onMouseDown={this.drag}>
-        </div>
-      );
-    } else if (this.props.size === 2) {
-      if (this.props.block.numCols === 1) {
-        return (
-          <div className="draggable-twoblockV m-0 bg-primary border border-dark rounded draggable"
-            id={this.props.id}
-            style={{
-              position: "relative",
-              left: this.state.pos.left + "px",
-              top: this.state.pos.top + "px"
-            }}
-            onMouseDown={this.drag}>
-          </div>
-        );
-      } else if (this.props.block.numCols === 2) {
-        return (
-          <div className="draggable-twoblockH m-0 bg-warning border border-dark rounded draggable"
-            id={this.props.id}
-            style={{
-              position: "relative",
-              left: this.state.pos.left + "px",
-              top: this.state.pos.top + "px"
-            }}
-            onMouseDown={this.drag}>
-          </div>
-        );
-      }
-    } else if (this.props.size === 1) {
-      return (
-        <div className="draggable-oneblock m-0 bg-success border border-dark rounded draggable"
-          id={this.props.id}
-          style={{
-            position: "relative",
-            left: this.state.pos.left + "px",
-            top: this.state.pos.top + "px"
-          }}
-          onMouseDown={this.drag}>
-        </div>
-      );
-    }
+    // dragblock vars
+    const steez = {
+      position: "relative",
+      left: this.state.pos.left + "px",
+      top: this.state.pos.top + "px"
+    };
+    const oneblockString = "draggable-oneblock m-0 bg-success border border-dark rounded draggable";
+    const twoblockHString = "draggable-twoblockH m-0 bg-warning border border-dark rounded draggable";
+    const twoblockVString = "draggable-twoblockV m-0 bg-primary border border-dark rounded draggable";
+    const fourblockString = "draggable-fourblock m-0 bg-danger border border-dark rounded draggable";
+    let classString = "";
+    // check block size
+    if (this.props.size === 4) classString = fourblockString;
+    else if (this.props.size === 2 && this.props.block.numCols === 1) classString = twoblockVString;
+    else if (this.props.size === 2) classString = twoblockHString;
+    else if (this.props.size === 1) classString = oneblockString;
+    else alert("Invalid draggable block properties");
+    // return dragblock
+    return (
+      <div className={classString}
+        id={this.props.id}
+        style={steez}
+        onMouseDown={this.drag}>
+      </div>
+    );
   }
 }
 
@@ -438,19 +380,11 @@ function Buttons(props) {
         Default
     </button>
   );
-  // button for running script to solve board
-  const solveButton = (
-    <button className="btn btn-primary ml-2" 
-      onClick={props.onSolve}>
-        Solve!
-    </button>
-  );
-  // button to see previous move in solution
-  const prevButton = (
-    <button className="btn btn-danger mr-2" 
-      onClick={props.onPrev}
-      id="prev-btn">
-        Prev
+  // button to finalize moves in solution
+  const finishButton = (
+    <button className="btn btn-success ml-2" 
+      onClick={props.onFinish}>
+        Finish
     </button>
   );
   //button to see next move in solution
@@ -460,16 +394,28 @@ function Buttons(props) {
         Next
     </button>
   );
-  // button to finalize moves in solution
-  const finishButton = (
-    <button className="btn btn-success ml-2" 
-      onClick={props.onFinish}>
-        Finish
+  
+  // button to see previous move in solution
+  const prevButton = (
+    <button className="btn btn-danger mr-2" 
+      onClick={props.onPrev}
+      id="prev-btn">
+        Prev
+    </button>
+  );
+  // button for running script to solve board
+  const solveButton = (
+    <button className="btn btn-primary ml-2" 
+      onClick={props.onSolve}>
+        Solve!
     </button>
   );
   
+  // buttons displayed after last solution move is seen 
+  if (props.finished) {
+    return <span></span>;
   // buttons displayed after solve button is pressed
-  if (props.solved) {
+  } else if (props.solved) {
     return (
       <div className="text-center mt-3">
         {prevButton}
@@ -494,8 +440,6 @@ function Buttons(props) {
       </div>
     );
   // buttons displayed when default board is shown
-  } else if (props.finished) {
-    return <span></span>;
   } else {
     return (
       <div className="text-center mt-3">
@@ -513,27 +457,27 @@ class Content extends React.Component {
       blocks: [],
       blocksAdded: false,
       cleared: true,
-      displayText: "Klotski Solver",
       default: false,
-      solved: false,
-      finished: false,
+      displayText: "Klotski Solver",
       dragBlock: null,
+      finished: false,
+      solved: false,
       winningRow: 3,
       winningCol: 1
     };
 
     this.blocksAdded = this.blocksAdded.bind(this);
     this.clear = this.clear.bind(this);
-    this.doubleClear = this.doubleClear.bind(this);
+    this.clearDragBlock = this.clearDragBlock.bind(this);
     this.default = this.default.bind(this);
-    this.solve = this.solve.bind(this);
+    this.doubleClear = this.doubleClear.bind(this);
+    this.dragBlockInfo = this.dragBlockInfo.bind(this);
+    this.finish = this.finish.bind(this);
     this.next = this.next.bind(this);
     this.prev = this.prev.bind(this);
     this.restart = this.restart.bind(this);
-    this.finish = this.finish.bind(this);
-    this.dragBlockInfo = this.dragBlockInfo.bind(this);
-    this.clearDragBlock = this.clearDragBlock.bind(this);
     this.setWinningPos = this.setWinningPos.bind(this);
+    this.solve = this.solve.bind(this);
   }
 
   // Function passed to the Board component that updates the Content
@@ -543,7 +487,6 @@ class Content extends React.Component {
       blocks: blocks,
       blocksAdded: true,
       cleared: false,
-      default: false
     }))
   }
 
@@ -599,7 +542,6 @@ class Content extends React.Component {
       } else {
         this.setState(state => ({
           blocksAdded: false,
-          cleared: false,
           default: false,
           displayText: "Solution of Length " + numMoves.toString() + " Found!",
           boards: solutionMoves,
@@ -620,6 +562,8 @@ class Content extends React.Component {
     } else {
       if (this.state.boardIdx === this.state.boards.length-1) {
         this.setState(state => ({
+          solved: false,
+          finished: true,
           displayText: "You Win!"
         }));
         this.restart();    
@@ -752,8 +696,8 @@ class Content extends React.Component {
               finished={this.state.finished}
               solved={this.state.solved}
               onClear={this.clear}
-              onDoubleClear={this.doubleClear}
               onDefault={this.default}
+              onDoubleClear={this.doubleClear}
               onFinish={this.finish}
               onNext={this.next}
               onPrev={this.prev}
