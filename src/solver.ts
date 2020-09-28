@@ -82,6 +82,7 @@ class Board {
         // for each block, ensure that all board cells to be covered by the 
         // block are free; if so, place `block` in all covered cells.
         let fourBlock: boolean = false;
+        let coveredCells: number = 0;
         for (let block of this.blocks) {
             if (block.numRows*block.numCols === 4 && !fourBlock) fourBlock = true; 
             else if (block.numRows*block.numCols === 4) throw new Error("There must be exacly one block of size 4");
@@ -89,12 +90,14 @@ class Board {
                 for (let j: number = block.colPos; j < block.colPos + block.numCols; j++) {
                     if (this._cells[i][j] === null) {
                         this._cells[i][j] = block;
+                        coveredCells++;
                     } else {
                         throw new Error("Invalid block positioning");
                     }
                 }
             }
         }
+        if (coveredCells !== 18) throw new Error("There must be exactly two free spaces");
         if (!fourBlock) throw new Error("There must be exactly one block of size 4");
     }
     private currentDirs(block: Block): Array<Dir> {
@@ -162,32 +165,22 @@ class Board {
         }
     }
     private findMoves(block: Block): Array<Array<Dir>> {
-        // given a block, do a depth first search for each available direction
-        // that is not a step backward and return a list of the valid direction paths
+        // given a block, find each available direction, and then from each of these,
+        // find the set of new available directions that are not steps backward, 
+        // and return a list of the valid direction paths
         let res: Array<Array<Dir>> = new Array<Array<Dir>>();
-        let stack: Array<Array<Dir>> = new Array<Array<Dir>>();
-        // push initial directions to stack
-        for (let initDir of this.currentDirs(block)) stack.push([initDir]);
-        while (stack.length > 0) {
-            let top: Array<Dir> | undefined = stack.pop(); // get top
-            if (top !== undefined) {
-                res.push(top); // push dirs to result
-                this.makeMove(block, top); // move block
-                // return valid directions from current position
-                // since a board will have two free spaces, move paths
-                // can be maximum length 2
-                if (top.length < 2) {
-                    for (let nextDir of this.currentDirs(block)) {
-                        // ensure next direction is not a move backward
-                        if (nextDir !== oppositeDir(top[top.length-1])) {
-                            let newDirs: Array<Dir> = [...top];
-                            newDirs.push(nextDir);
-                            stack.push(newDirs); // push new dirs list
-                        }
-                    }
+        for (let initDir of this.currentDirs(block)) {
+            res.push([initDir]); // push initial directions to result
+            this.makeMove(block, [initDir]); // move block
+            // find next directions
+            for (let nextDir of this.currentDirs(block)) {
+                // ensure next direction is not a move backward
+                if (nextDir !== oppositeDir(initDir)) {
+                    let newDirs: Array<Dir> = [initDir, nextDir];
+                    res.push(newDirs); // push new list of two directions to result
                 }
-                this.makeMove(block, oppositeDirs(top)); // unMove block
             }
+            this.makeMove(block, oppositeDirs([initDir])); // unMove block
         }
         return res;
     }
@@ -212,13 +205,11 @@ class Board {
         // walk through `_cells` matrix, convert blocks to simple strings, and
         // concatenate them into the `hash` string
         let res: string = "";
-        let numNulls: number = 0;
         for (let i: number = 0; i < 5; i++) {
             for (let j: number  = 0; j < 4; j++) {
                 let block: Block | null = this._cells[i][j];
                 if (block === null) {
                     res += "0";
-                    numNulls++;
                 } else if ( block.numRows*block.numCols === 2) {
                     res += (block.numRows === 1 ? "2H" : "2V");
                 } else {
@@ -226,7 +217,6 @@ class Board {
                 } 
             }
         }
-        if (numNulls !== 2) throw new Error("There must be exactly 2 free spaces on the board");
         return res;
     }
     isSolved(): boolean {
