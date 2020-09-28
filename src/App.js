@@ -14,78 +14,73 @@ function BoardBlock(props) {
   else alert("Invalid board cell properties");
 }
 
-class BoardCell extends React.Component {
-  constructor(props) {
-    super(props);
-    this.click = this.click.bind(this);
-  }
-
-  click(e) {
-    this.props.onClickFunc(e.currentTarget.id);
+function BoardCell (props) {
+  // function for calling parent setWinningPos function
+  function click(e) {
+    props.onClickFunc(e.currentTarget.id);
   }
   
-  render() {
-    // currently under placed block
-    if (this.props.block == null) return <span></span>;
+  // currently under placed block
+  if (props.block == null) return <span></span>;
 
-    // return placeholder block in next row under block overflow
-    const underblock = <div className="col-3 p-0 m-0"></div>;
-    if (!this.props.block.hasOwnProperty("colPos")) return underblock;
+  // return placeholder block in next row under block overflow
+  const underblock = <div className="col-3 p-0 m-0"></div>;
+  if (!props.block.hasOwnProperty("colPos")) return underblock;
 
-    const currRow = parseInt(this.props.id.split(",")[0]);
-    const currCol = parseInt(this.props.id.split(",")[1]);
-    const size = this.props.block.numRows*this.props.block.numCols;
-    // empty space
-    if (size === 0) {
-      // winning cell vars
-      let winRow = this.props.winningRow;
-      let winCol = this.props.winningCol;
-      const winCell = (
-        <div className="col-3 boardcell winningcell p-0 m-0 border"
-          id={this.props.id}
-          onMouseUp={this.props.onDropFunc}>
-        </div>
-      );
-      const clickableWinCell = (
-        <div className="col-3 boardcell winningcell p-0 m-0 border"
-          id={this.props.id}
-          onMouseUp={this.props.onDropFunc}
-          onMouseDown={this.click}>
-        </div>
-      );
-      // normal cell vars
-      const cell = (
-        <div className="col-3 boardcell p-0 m-0 border"
-          id={this.props.id}
-          onMouseUp={this.props.onDropFunc}>
-        </div>
-      );
-      const clickableCell = (
-        <div className="col-3 boardcell p-0 m-0 border"
-          id={this.props.id}
-          onMouseUp={this.props.onDropFunc}
-          onMouseDown={this.click}>
-        </div>
-      );
-      // winning cell
-      if ((currRow === winRow || currRow === winRow+1) && (currCol === winCol || currCol === winCol+1)) {
-        if (currRow === 4 || currCol === 3) return winCell;
-        else return clickableWinCell;
-      // normal cell
-      } else {
-        if (currRow === 4 || currCol === 3) return cell;
-        else return clickableCell;
-      }
-    // block placed
+  const currRow = parseInt(props.id.split(",")[0]);
+  const currCol = parseInt(props.id.split(",")[1]);
+  const size = props.block.numRows*props.block.numCols;
+  // empty space
+  if (size === 0) {
+    // winning cell vars
+    let winRow = props.winningRow;
+    let winCol = props.winningCol;
+    const winCell = (
+      <div className="col-3 boardcell winningcell p-0 m-0 border"
+        id={props.id}
+        onMouseUp={props.onDropFunc}>
+      </div>
+    );
+    const clickableWinCell = (
+      <div className="col-3 boardcell winningcell p-0 m-0 border"
+        id={props.id}
+        onMouseUp={props.onDropFunc}
+        onClick={click}>
+
+      </div>
+    );
+    // normal cell vars
+    const cell = (
+      <div className="col-3 boardcell p-0 m-0 border"
+        id={props.id}
+        onMouseUp={props.onDropFunc}>
+      </div>
+    );
+    const clickableCell = (
+      <div className="col-3 boardcell p-0 m-0 border"
+        id={props.id}
+        onMouseUp={props.onDropFunc}
+        onClick={click}>
+      </div>
+    );
+    // winning cell
+    if ((currRow === winRow || currRow === winRow+1) && (currCol === winCol || currCol === winCol+1)) {
+      if (currRow === 4 || currCol === 3) return winCell;
+      else return clickableWinCell;
+    // normal cell
     } else {
-      return (
-        <BoardBlock
-          key={this.props.id}
-          size={size}
-          block={this.props.block}
-        />
-      );
+      if (currRow === 4 || currCol === 3) return cell;
+      else return clickableCell;
     }
+  // block placed
+  } else {
+    return (
+      <BoardBlock
+        key={props.id}
+        size={size}
+        block={props.block}
+      />
+    );
   }
 }
 
@@ -241,13 +236,13 @@ class DraggableBlock extends React.Component {
       rel: null,
       pos: { left: 0, top: 0}
     };
-    this.drag = this.drag.bind(this);
+    this.click = this.click.bind(this);
     this.move = this.move.bind(this);
     this.drop = this.drop.bind(this);
   }
 
   // function called on mouse down on a draggable block
-  drag(e) {
+  click(e) {
     if (e.button !== 0) return
     let currPos = e.currentTarget.getBoundingClientRect();
     this.setState((state) => ({
@@ -296,10 +291,10 @@ class DraggableBlock extends React.Component {
       left: this.state.pos.left + "px",
       top: this.state.pos.top + "px"
     };
-    const oneblockString = "draggable-oneblock m-0 bg-success border border-dark rounded draggable";
-    const twoblockHString = "draggable-twoblockH m-0 bg-warning border border-dark rounded draggable";
-    const twoblockVString = "draggable-twoblockV m-0 bg-primary border border-dark rounded draggable";
-    const fourblockString = "draggable-fourblock m-0 bg-danger border border-dark rounded draggable";
+    const oneblockString  = "draggable-oneblock  m-2 p-0 bg-success border border-dark rounded";
+    const twoblockHString = "draggable-twoblockH m-2 p-0 bg-warning border border-dark rounded";
+    const twoblockVString = "draggable-twoblockV m-2 p-0 bg-primary border border-dark rounded";
+    const fourblockString = "draggable-fourblock m-2 p-0 bg-danger  border border-dark rounded";
     let classString = "";
     // check block size
     if (this.props.size === 4) classString = fourblockString;
@@ -312,7 +307,7 @@ class DraggableBlock extends React.Component {
       <div className={classString}
         id={this.props.id}
         style={steez}
-        onMouseDown={this.drag}>
+        onMouseDown={this.click}>
       </div>
     );
   }
@@ -322,32 +317,28 @@ function Toolbar(props) {
   // only show toolbar when board is cleared or blocks are being added
   if (props.show) {
     return (
-      <div className="col-10 col-xl-4 mt-5">
+      <div className="col-12 mt-2">
         <div className="row justify-content-center">
           <DraggableBlock 
             size={4} 
             id="2,2"
             onDragFunc={props.onDragFunc}
           />
-          <div className="mx-2"></div>
-            <DraggableBlock 
-              size={2} 
-              id="2,1" 
-              block={{ numRows: 2, numCols: 1 }} 
-              onDragFunc={props.onDragFunc}
-            />
-        </div>
-        <div className="row justify-content-center mt-3">
           <DraggableBlock 
-            size={1} 
-            id="1,1" 
+            size={2} 
+            id="2,1" 
+            block={{ numRows: 2, numCols: 1 }} 
             onDragFunc={props.onDragFunc}
           />
-          <div className="mx-2"></div>
           <DraggableBlock 
             size={2} 
             id="1,2" 
             block={{ numRows: 1, numCols: 2 }} 
+            onDragFunc={props.onDragFunc}
+          />
+          <DraggableBlock 
+            size={1} 
+            id="1,1" 
             onDragFunc={props.onDragFunc}
           />
         </div>
@@ -361,43 +352,42 @@ function Toolbar(props) {
 function Buttons(props) {
   // button for clearing board
   const clearButton = (
-    <button className="btn btn-danger mr-2" 
+    <button className="btn btn-sm btn-danger mr-2" 
       onClick={props.onClear}>
         Clear
     </button>
   );
   // button for clearing a user made board
   const doubleClearButton = (
-    <button className="btn btn-danger mr-2" 
+    <button className="btn btn-sm btn-danger mr-2" 
       onClick={props.onDoubleClear}>
         Clear
     </button>
   );
   // button for displaying the default board
   const defaultButton = (
-    <button className="btn btn-warning mx-1" 
+    <button className="btn btn-sm btn-warning mx-1" 
       onClick={props.onDefault}>
         Default
     </button>
   );
   // button to finalize moves in solution
   const finishButton = (
-    <button className="btn btn-success ml-2" 
+    <button className="btn btn-sm btn-success ml-2" 
       onClick={props.onFinish}>
         Finish
     </button>
   );
   //button to see next move in solution
   const nextButton = (
-    <button className="btn btn-warning mx-2" 
+    <button className="btn btn-sm btn-warning mx-2" 
       onClick={props.onNext}>
         Next
     </button>
   );
-  
   // button to see previous move in solution
   const prevButton = (
-    <button className="btn btn-danger mr-2" 
+    <button className="btn btn-sm btn-danger mr-2" 
       onClick={props.onPrev}
       id="prev-btn">
         Prev
@@ -405,7 +395,7 @@ function Buttons(props) {
   );
   // button for running script to solve board
   const solveButton = (
-    <button className="btn btn-primary ml-2" 
+    <button className="btn btn-sm btn-primary ml-2" 
       onClick={props.onSolve}>
         Solve!
     </button>
@@ -417,7 +407,7 @@ function Buttons(props) {
   // buttons displayed after solve button is pressed
   } else if (props.solved) {
     return (
-      <div className="text-center mt-3">
+      <div className="text-center mt-2">
         {prevButton}
         {nextButton}
         {finishButton}
@@ -426,7 +416,7 @@ function Buttons(props) {
   // buttons displayed after blocks have been dropped
   } else if (props.blocksAdded){
     return (
-      <div className="text-center mt-3">
+      <div className="text-center mt-2">
         {doubleClearButton}
         {solveButton}
       </div>
@@ -434,7 +424,7 @@ function Buttons(props) {
   // buttons displayed when board is cleared of blocks
   } else if (props.cleared){
     return (
-      <div className="text-center mt-3">
+      <div className="text-center mt-2">
         {defaultButton}
         {solveButton}
       </div>
@@ -442,7 +432,7 @@ function Buttons(props) {
   // buttons displayed when default board is shown
   } else {
     return (
-      <div className="text-center mt-3">
+      <div className="text-center mt-2">
         {clearButton}
         {solveButton}
       </div>
@@ -681,7 +671,7 @@ class Content extends React.Component {
         </div>
         <div className="row justify-content-center px-0 mx-0"
           onMouseDown={this.clearDragBlock}>
-          <div className="col-4 board">
+          <div className="col-3 board">
             <Board 
               blocks={this.state.blocks}
               dragBlock={this.state.dragBlock}
