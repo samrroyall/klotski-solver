@@ -167,8 +167,15 @@ function Board(props) {
           numRows: props.dragBlock.numRows,
           numCols: props.dragBlock.numCols
         };
-        // push newBlocks to Content component to be fed back into Board via props
-        checkBlock(newBlock);
+        // cannot place fourblock in winning position
+        if (
+          !(newBlock.numRows*newBlock.numCols === 4 && 
+            newBlock.rowPos === props.winningRow && 
+            newBlock.colPos === props.winningCol)
+        ) {
+          // push newBlocks to Content component to be fed back into Board via props
+          checkBlock(newBlock);
+        }
       }
     }
   }
