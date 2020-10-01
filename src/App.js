@@ -599,29 +599,30 @@ class Content extends React.Component {
   // solved state property when a user clicks the solve button.
   solve() {
     try {
-      console.log(this.state.blocks);
       var s = new Solver(
         this.state.blocks, 
         this.state.winningRow, 
         this.state.winningCol
       );
       s.solve();
-      let solutionMoves = s.getBoards();
-      const numMoves = solutionMoves.length;
-      if (numMoves === 0) {
-        this.setState(state => ({displayText: "No Solution Found :(" }));
-        this.restart();
-      } else {
-        this.setState(state => ({
-          currState: "solved",
-          displayText: "Solution of Length " + numMoves.toString() + " Found!",
-          boards: solutionMoves,
-          boardIdx: -1
-        }));
-      }
     } catch (err) {
       alert(err);
+      return;
     }
+    this.setState(state => ({ currState: "solved" }));
+    const solutionMoves = s.getBoards();
+    const numMoves = solutionMoves.length;
+    if (numMoves === 0) {
+      this.setState(state => ({displayText: "No Solution Found :(" }));
+      this.restart();
+    } else {
+      this.setState(state => ({
+        displayText: "Solution of Length " + numMoves.toString() + " Found!",
+        boards: solutionMoves,
+        boardIdx: -1
+      }));
+    }
+    
   }
 
 
