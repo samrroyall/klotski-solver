@@ -4,6 +4,35 @@
 #footer {
     font-size: calc(10px + .5vw) !important;
 }
+
+.hide {
+    display: none;
+}
+.alert-body {
+    position: fixed;
+    top: 20%;
+    left: 25%;
+    padding-top: 5%;
+    padding-bottom: 5%;
+    padding-left: 3%;
+    padding-right: 3%;
+    height: 60%;
+    width: 50%;
+    z-index: 3;
+    opacity: 100%;
+    /*color: black;*/
+}
+#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: black;
+    opacity: 80%;
+    z-index: 2;
+}
+
 .board {
     min-width: 300px !important;
 }
