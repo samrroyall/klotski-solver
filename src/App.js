@@ -685,15 +685,22 @@ class Content extends React.Component {
   }
 }
 
-function removeOverlay() {
-  document.getElementById("overlay").classList.add("hide");
-}
+function Alert() {
+  function removeOverlay() {
+    document.getElementById("overlay").classList.add("hide");
+  }
 
-function App() {
   const instructionsAlert = (
     <div id="overlay">
       <div className="alert alert-danger alert-dismissible fade show alert-body"
         role="alert">
+            <button type="button" 
+              className="close alert-button"
+              data-dismiss="alert"
+              aria-label="close"
+              onClick={removeOverlay}>
+                <span aria-hidden="true">&times;</span>
+            </button>
             <div className="h4">Welcome to the Klotski Solver!</div>
             <hr/>
             The goal of Klotski is to create a board with <strong>one</strong> red block and 
@@ -708,19 +715,17 @@ function App() {
             Finally, click 'Solve' and watch our super cool algorithm find an optimal solution
             to your board. Step though the solution by pressing 'Next' or 'Prev', or simply
             press 'Finish' and watch as the board is solved before your eyes.
-            <button type="button" 
-              className="close"
-              data-dismiss="alert"
-              aria-label="Close"
-              onClick={removeOverlay}>
-                <span aria-hidden="true">&times;</span>
-            </button>
       </div>
     </div>
   );
+
+  return instructionsAlert;
+}
+
+function App() {
   return (
     <div>
-      {instructionsAlert}
+      <Alert />
       <Content />   
     </div>
   );
