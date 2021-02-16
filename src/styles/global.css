@@ -1,0 +1,4 @@
+.h1 { font-size: calc(20px + 5vw) !important; }
+.hide { display: none; }
+footer { font-size: calc(10px + .5vw) !important; }
+

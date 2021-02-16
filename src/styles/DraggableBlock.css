@@ -1,0 +1,34 @@
+/* draggable elements */
+.draggable { cursor: pointer; }
+.draggable-oneblock {
+    height: 3vw !important;
+    min-height: 40px;
+    width: 3vw !important;
+    min-width: 40px;
+    z-index: 1;
+}
+.draggable-twoblockH {
+    height: 3vw !important;
+    min-height: 40px;
+    width: 6vw !important;
+    min-width: 80px;
+    z-index: 1;
+}
+.draggable-twoblockV {
+    height: 6vw !important;
+    min-height: 80px;
+    width: 3vw !important;
+    min-width: 40px;
+    z-index: 1;
+}
+.draggable-fourblock {
+    height: 6vw !important;
+    min-height: 80px;
+    width: 6vw !important;
+    min-width: 80px;
+    z-index: 1;
+}
+.draggable-oneblock:hover { background-color: #408f40 !important; }
+.draggable-twoblockH:hover { background-color: #f0ad4e !important; }
+.draggable-fourblock:hover { background-color: #cf4a46 !important; }
+.draggable-twoblockV:hover { background-color: #0275d8 !important; }

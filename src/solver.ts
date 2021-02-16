@@ -56,10 +56,10 @@ function moveBlock(block: Block, dirs: Array<Dir>): void {
 function equivalentBlocks(b1: Block, b2: Block): boolean {
     // return a boolean value representing whether two blocks are equivalent
     return (
-      b1.rowPos === b2.rowPos && 
-      b1.colPos === b2.colPos &&
-      b1.numRows === b2.numRows && 
-      b1.numCols === b2.numCols
+        b1.rowPos === b2.rowPos && 
+        b1.colPos === b2.colPos &&
+        b1.numRows === b2.numRows && 
+        b1.numCols === b2.numCols
     );
 }
 

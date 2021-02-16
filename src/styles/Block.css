@@ -1,0 +1,11 @@
+.boardblock {
+    z-index: 1;
+    height: 5vw;
+    min-height: 75px;
+}
+
+/* fourblock rounding */
+.rounded-top-left { border-top-left-radius: 4px; }
+.rounded-bottom-left { border-bottom-left-radius: 4px; }
+.rounded-top-right { border-top-right-radius: 4px; }
+.rounded-bottom-right { border-bottom-right-radius: 4px; }
