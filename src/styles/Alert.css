@@ -1,6 +1,6 @@
 .alert-body {
     position: absolute;
-    margin: 20vh auto;
+    margin-top: 20vh;
     padding-top: 5% !important;
     padding-bottom: 5% !important;
     padding-left: 3% !important;
@@ -9,7 +9,7 @@
     width: 50%;
     min-width: 300px;
     z-index: 3000;
-    opacity: 90%;
+    opacity: .9;
     font-size: calc(8px + .5vw);
 }
 #overlay {
@@ -19,7 +19,7 @@
     height: 100%;
     width: 100%;
     background-color: black;
-    opacity: 91%;
+    opacity: .92;
     z-index: 2000;
 }
 
