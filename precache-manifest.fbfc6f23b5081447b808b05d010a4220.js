@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "25f8866b5c0f7e1ba30c4f3665174d98",
+    "revision": "3d3a15fbe47da695be0b2f132bfd7768",
     "url": "/klotski-solver/index.html"
   },
   {
@@ -8,8 +8,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/klotski-solver/static/css/2.c0a2b1fa.chunk.css"
   },
   {
-    "revision": "b3069fdf3ff2c89ab725",
-    "url": "/klotski-solver/static/css/main.cc1b6478.chunk.css"
+    "revision": "7948e08dad8f566236e0",
+    "url": "/klotski-solver/static/css/main.9a40efcf.chunk.css"
   },
   {
     "revision": "c3ddfb73b56e60004c18",
@@ -20,8 +20,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/klotski-solver/static/js/2.97bf1a4b.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "b3069fdf3ff2c89ab725",
-    "url": "/klotski-solver/static/js/main.2eb85dc1.chunk.js"
+    "revision": "7948e08dad8f566236e0",
+    "url": "/klotski-solver/static/js/main.dbc6834d.chunk.js"
   },
   {
     "revision": "ed5bdccfbf75f7106e56",
